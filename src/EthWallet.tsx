@@ -1,13 +1,16 @@
 import { mnemonicToSeed } from "bip39"
-import{Wallet,HDNodeWallet} from "ethers"
-import { useState } from "react"
+import{Wallet,HDNodeWallet, ethers} from "ethers"
+import { useEffect, useState } from "react"
 
 
 function EthWallet({mnemonic}) {
   
     const [index, setIndex] = useState(0);
-    const[addresses, setAddresses]:any = useState([]);
+    const[addresses, setAddresses]= useState<string[]>([]);
+    const provider = new ethers.JsonRpcProvider("https://eth-mainnet.g.alchemy.com/v2/NzcjxTamdyKCgFwE0xzsi");
+    const [balance, setBalance]  = useState ({})
 
+   
 
     return (
     <div>
@@ -22,8 +25,16 @@ function EthWallet({mnemonic}) {
     }}>
         Add ETH Wallet
     </button>
-    {addresses.map((p => <div>
-        Eth - {p}
+    {addresses.map((addr => <div>
+        Eth - {addr} <button onClick={async()=>{
+            const res = await provider.getBalance(addr,"latest")
+            const resInEth = ethers.formatEther(res)
+            setBalance((prev)=>({
+                ...prev,
+                [addr]:resInEth
+            }));
+        }} > Get Balance</button>
+        {balance[addr] && <span> → {balance[addr]} ETH</span>}
     </div> ))}
     </div>
   )
